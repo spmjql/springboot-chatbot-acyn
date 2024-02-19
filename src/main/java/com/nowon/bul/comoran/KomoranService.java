@@ -24,7 +24,6 @@ public class KomoranService {
 	
 	
 	private final Komoran komoran;
-	
 	private final ChatBotIntentionRepository intention;
 	
 	
