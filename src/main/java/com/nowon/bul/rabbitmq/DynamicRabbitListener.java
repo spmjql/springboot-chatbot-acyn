@@ -13,13 +13,8 @@ public class DynamicRabbitListener {
 	@Autowired
 	private SimpMessagingTemplate simpMessagingTemplate;
 	
-	public void receiveMessage(MyMessage message) {
+	public void receiveMessage(Question message) {
 		System.out.println(">>>>수신된 메세지:"+ message);
-		if(message.getFrom().equals("user")) {
-			simpMessagingTemplate.convertAndSend("/topic/order/"+message.getName(), message);
-		}else {
-			simpMessagingTemplate.convertAndSend("/topic/order/"+message.getName()+"/"+message.getKey(), message);
-		}
+		simpMessagingTemplate.convertAndSend("/topic/order/"+message.getKey(), message);
 	}
-
 }

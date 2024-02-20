@@ -10,6 +10,7 @@ import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFacto
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
 import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -19,8 +20,10 @@ import lombok.RequiredArgsConstructor;
 public class RabbitMQService {
 	
 	private final AmqpAdmin amqpAdmin;
-	private String prefixName="greensix.";
-	private String suffixQueueName=".queue";
+	@Value("${spring.rabbitmq.template.prefixName}")
+	private String prefixName;
+	@Value("${spring.rabbitmq.template.suffixQueueName}")
+	private String suffixQueueName;
 	
 	
 	Queue queue;

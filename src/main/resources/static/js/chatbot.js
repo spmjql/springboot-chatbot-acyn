@@ -74,7 +74,7 @@ function connect(){
 	stompClient=Stomp.over(new SockJS("/green-bot"));
 	stompClient.connect({},(frame)=>{
 		//접속이 완료되면 인사말수신-구독
-		stompClient.subscribe(`/topic/question/${key}`,(answerData)=>{
+		stompClient.subscribe(`/topic/order/${key}`,(answerData)=>{
 			//console.log(answerData.body);
 			var message=JSON.parse(answerData.body);
 			var text=message.content;
