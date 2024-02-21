@@ -17,4 +17,9 @@ public class DynamicRabbitListener {
 		System.out.println(">>>>수신된 메세지:"+ message);
 		simpMessagingTemplate.convertAndSend("/topic/order/"+message.getKey(), message);
 	}
+	
+	public void chatbotMessage(Question message) {
+		System.out.println(">>>>chatbotMessage수신된 메세지:"+ message);
+		simpMessagingTemplate.convertAndSend("/topic/order/"+message.getKey(), message);
+	}
 }

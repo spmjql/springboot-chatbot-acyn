@@ -24,13 +24,15 @@ public class RabbitMQService {
 	private String prefixName;
 	@Value("${spring.rabbitmq.template.suffixQueueName}")
 	private String suffixQueueName;
+	@Value("${spring.rabbitmq.template.default-receive-queue}")
+	private String chatbotQueueName;
 	
 	
 	Queue queue;
 	// 큐 생성
     public void createQueue(String branchName) {
     	String queueName=prefixName+branchName+suffixQueueName;
-        queue = new Queue(queueName);
+        queue = new Queue(queueName, false);
         amqpAdmin.declareQueue(queue);
     }
 
@@ -49,7 +51,7 @@ public class RabbitMQService {
     	String routingKey=branchName+".#";
     	
     	Binding binding = BindingBuilder
-                .bind(new Queue(queueName))
+                .bind(new Queue(queueName, false))
                 .to(new TopicExchange(exchangeName))
                 .with(routingKey);
         amqpAdmin.declareBinding(binding);
@@ -64,11 +66,15 @@ public class RabbitMQService {
     
     // 동적으로 리스너 컨테이너 생성
     private void createListenerContainer(Queue queue) {
-    	
+    	String dynamicRabbitListener_methodName = "receiveMessage";
+    	if(queue.getName().equals(chatbotQueueName)) {
+    		dynamicRabbitListener_methodName = "chatbotMessage";
+    	}
+    	System.out.println("************"+dynamicRabbitListener_methodName);
         SimpleMessageListenerContainer container = simpleRabbitListenerContainerFactory.createListenerContainer();
         container.setQueues(queue);
         // MyMessageListener 클래스의 handleMessage 메서드를 호출하는 리스너 설정
-        MessageListenerAdapter messageListenerAdapter = new MessageListenerAdapter(dynamicRabbitListener, "receiveMessage");
+        MessageListenerAdapter messageListenerAdapter = new MessageListenerAdapter(dynamicRabbitListener, dynamicRabbitListener_methodName);
         messageListenerAdapter.setMessageConverter(messageConverter);
         
         container.setMessageListener(messageListenerAdapter);
