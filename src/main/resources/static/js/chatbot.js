@@ -87,7 +87,7 @@ function connect(){
 		var data={
 			key: key,
 			name:"그린",
-			content: "학원에있는영진이전화번호는?."
+			content: "니코틴아마이드 아데닌 다이뉴클레오타이드"
 		}
 		//인사말 보내줘
 		stompClient.send("/message/bot",{},JSON.stringify(data));
