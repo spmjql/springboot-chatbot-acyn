@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 public class RabbitMQConfig {
 	
 	private final ConnectionFactory connectionFactory;
+	
 	//Jackson2JsonMessageConverter는 
 	//Spring의 Jackson 라이브러리를 사용하여 객체를 JSON 형식으로 직렬화하고 역직렬화하는 MessageConverter의 구현체
 	//이렇게 등록된 MessageConverter는 RabbitMQ와의 통신에서 자동으로 적용되어 메시지의 직렬화 및 역직렬화를 처리

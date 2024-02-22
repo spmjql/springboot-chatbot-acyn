@@ -1,9 +1,10 @@
 package com.nowon.bul.rabbitmq;
 
+import java.util.Vector;
+
 import org.springframework.amqp.core.AmqpAdmin;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.Exchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
@@ -29,6 +30,7 @@ public class RabbitMQService {
 	
 	
 	Queue queue;
+	TopicExchange exchange;
 	// 큐 생성
     public void createQueue(String branchName) {
     	String queueName=prefixName+branchName+suffixQueueName;
@@ -40,19 +42,17 @@ public class RabbitMQService {
     public void createExchange(String branchName) {
         //Exchange exchange = new DirectExchange(exchangeName);
     	String exchangeName=prefixName+branchName;
-        Exchange exchange = new TopicExchange(exchangeName);
+        exchange = new TopicExchange(exchangeName);
         amqpAdmin.declareExchange(exchange);
     }
     
     // 큐와 익스체인지를 라우팅 키로 바인딩
     public void bindQueueToExchange(String branchName) {
-    	String queueName=prefixName+branchName+suffixQueueName;
-    	String exchangeName=prefixName+branchName;
     	String routingKey=branchName+".#";
     	
     	Binding binding = BindingBuilder
-                .bind(new Queue(queueName, false))
-                .to(new TopicExchange(exchangeName))
+                .bind(queue)
+                .to(exchange)
                 .with(routingKey);
         amqpAdmin.declareBinding(binding);
         
@@ -64,6 +64,8 @@ public class RabbitMQService {
 	private final MessageConverter messageConverter;
     private final SimpleRabbitListenerContainerFactory simpleRabbitListenerContainerFactory;
     
+    public static Vector<SimpleMessageListenerContainer> simpleMessageListenerContainerActivateList = new Vector<>();
+    
     // 동적으로 리스너 컨테이너 생성
     private void createListenerContainer(Queue queue) {
     	String dynamicRabbitListener_methodName = "receiveMessage";
@@ -72,13 +74,15 @@ public class RabbitMQService {
     	}
     	System.out.println("************"+dynamicRabbitListener_methodName);
         SimpleMessageListenerContainer container = simpleRabbitListenerContainerFactory.createListenerContainer();
-        container.setQueues(queue);
         // MyMessageListener 클래스의 handleMessage 메서드를 호출하는 리스너 설정
         MessageListenerAdapter messageListenerAdapter = new MessageListenerAdapter(dynamicRabbitListener, dynamicRabbitListener_methodName);
         messageListenerAdapter.setMessageConverter(messageConverter);
         
+        container.setQueues(queue);
         container.setMessageListener(messageListenerAdapter);
         container.start();
+        //서버종료시 ContextClosedEvent로 컨테이너를 종료하기 위해 객체리스트저장
+        simpleMessageListenerContainerActivateList.add(container);
         System.out.println(">>>:리스너 생성"+container);
     }
 }
